@@ -7,7 +7,11 @@ pipeline {
       steps {
         echo 'Hello'
         sh 'java -version '
+        echo '"${MY_NAME}"'
       }
     }
+  }
+  environment {
+    MY_NAME = 'The Greatest Foo'
   }
 }
