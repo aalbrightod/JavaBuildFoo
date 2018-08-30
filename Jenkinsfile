@@ -10,6 +10,17 @@ pipeline {
         sh 'echo "I AM... ${MY_NAME}"'
       }
     }
+    stage('Deploy') {
+      options {
+        timeout(time: 30, unit: 'SECONDS')
+      }
+      input {
+        message 'Should we continue?'
+      }
+      steps {
+        echo 'Continuing with deployment'
+      }
+    }
   }
   environment {
     MY_NAME = 'The Greatest Foo'
