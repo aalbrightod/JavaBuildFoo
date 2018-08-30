@@ -3,39 +3,50 @@ pipeline {
     label 'jdk8'
   }
   stages {
-    stage('SayHello') {
+    stage('Say Hello') {
       steps {
-        echo 'Hello'
-        sh 'java -version '
-        sh 'echo "I AM... ${MY_NAME}"'
+        echo "Hello ${params.Name}!"
+        sh 'java -version'
+        echo "${TEST_USER_USR}"
+        echo "${TEST_USER_PSW}"
       }
     }
-    stage('Deploy') {
-      options {
-        timeout(time: 30, unit: 'SECONDS') 
-      }
-      input {
-        message "Which Version?"
-        ok "Deploy"
-        parameters {
-            choice(name: 'APP_VERSION', choices: "v1.1\nv1.2\nv1.3", description: 'What to deploy?')
+    stage('Testing') {
+      failFast true
+      parallel {
+        stage('Java 8') {
+          agent {
+            label 'jdk8'
+          }
+          steps {
+            sh 'java -version'
+            sleep(time: 10, unit: 'SECONDS')
+          }
         }
-      }
-      steps {
-        echo "Deploying ${APP_VERSION}."
-      }
-    }
-      }
-      steps {
-        echo "Deploying ${APP_VERSION}."
+        stage('Java 9') {
+          agent {
+            label 'jdk9'
+          }
+          steps {
+            sh 'java -version'
+            sleep(time: 20, unit: 'SECONDS')
+          }
+        }
       }
     }
   }
   environment {
-    MY_NAME = 'The Greatest Foo'
+    MY_NAME = 'Mary'
     TEST_USER = credentials('test-user')
   }
+  post {
+    aborted {
+      echo 'Why didn\'t you push my button?'
+      
+    }
+    
+  }
   parameters {
-    string(name: 'NameVar', defaultValue: 'whoever you are', description: 'Who should I say hi to?')
+    string(name: 'Name', defaultValue: 'whoever you are', description: 'Who should I say hi to?')
   }
 }
